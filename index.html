@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Research Assistant — Leo Magana</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --accent: #c8a96e;
+    --accent-dim: rgba(200, 169, 110, 0.15);
+    --text: #e8e8f0;
+    --text-dim: #7a7a9a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(200,169,110,0.04) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(100,100,200,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+  header { position: relative; z-index: 1; padding: 2rem 3rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--accent); letter-spacing: 0.05em; cursor: pointer; transition: opacity 0.2s; text-decoration: none; }
+  .logo:hover { opacity: 0.75; }
+  .badge { font-size: 0.7rem; font-weight: 500; color: var(--text-dim); border: 1px solid var(--border); padding: 0.3rem 0.8rem; border-radius: 999px; letter-spacing: 0.1em; text-transform: uppercase; }
+  main { position: relative; z-index: 1; flex: 1; max-width: 860px; margin: 0 auto; width: 100%; padding: 5rem 2rem 3rem; }
+  .hero { text-align: center; margin-bottom: 4rem; animation: fadeUp 0.8s ease forwards; }
+  .hero-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.2rem; font-weight: 500; }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.2rem; color: var(--text); }
+  h1 span { color: var(--accent); font-style: italic; }
+  .hero-sub { color: var(--text-dim); font-size: 1rem; line-height: 1.7; max-width: 520px; margin: 0 auto; font-weight: 300; }
+  .input-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; animation: fadeUp 0.8s 0.2s ease forwards; opacity: 0; }
+  .input-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.8rem; display: block; font-weight: 500; }
+  .input-row { display: flex; gap: 1rem; align-items: stretch; }
+  input[type="text"] { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1.2rem; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--text-dim); }
+  button { background: var(--accent); color: #0a0a0f; border: none; border-radius: 10px; padding: 0.9rem 1.8rem; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; letter-spacing: 0.03em; }
+  button:hover:not(:disabled) { background: #d4b87a; transform: translateY(-1px); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .examples { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+  .example-chip { font-size: 0.75rem; color: var(--text-dim); border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; transition: all 0.2s; background: transparent; font-weight: 400; }
+  .example-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); transform: none; }
+  .loading { display: none; text-align: center; padding: 3rem; }
+  .loading.active { display: block; }
+  .spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  .loading-text { color: var(--text-dim); font-size: 0.9rem; font-weight: 300; }
+  .results { display: none; animation: fadeUp 0.6s ease forwards; }
+  .results.active { display: block; }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .results-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--text); }
+  .results-query { font-size: 0.8rem; color: var(--accent); font-style: italic; }
+  .reset-btn { background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-size: 0.8rem; padding: 0.4rem 1rem; font-weight: 400; }
+  .reset-btn:hover { border-color: var(--text-dim); color: var(--text); transform: none; background: transparent; }
+  .sections-grid { display: grid; gap: 1rem; }
+  .section-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s; }
+  .section-card:hover { border-color: rgba(200, 169, 110, 0.3); }
+  .section-card.highlight { border-color: rgba(200, 169, 110, 0.4); background: linear-gradient(135deg, var(--surface), rgba(200,169,110,0.05)); }
+  .section-icon { font-size: 1.2rem; margin-bottom: 0.6rem; display: block; }
+  .section-title { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; font-weight: 600; }
+  .section-content { color: var(--text); font-size: 0.92rem; line-height: 1.75; font-weight: 300; }
+  .section-content ul { list-style: none; padding: 0; }
+  .section-content li { padding: 0.3rem 0; padding-left: 1.2rem; position: relative; color: var(--text); }
+  .section-content li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.8rem; }
+  .error-box { display: none; background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3); border-radius: 10px; padding: 1rem 1.2rem; color: #ff8080; font-size: 0.9rem; margin-top: 1rem; }
+  .error-box.active { display: block; }
+  footer { position: relative; z-index: 1; text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.75rem; letter-spacing: 0.05em; }
+  footer a { color: var(--accent); text-decoration: none; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 600px) { header { padding: 1.2rem 1.5rem; } main { padding: 3rem 1.2rem 2rem; } .input-row { flex-direction: column; } h1 { font-size: 2rem; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="reset()">Market Intelligence</div>
+  <div class="badge">AI-Powered</div>
+</header>
+<main>
+  <div class="hero">
+    <div class="hero-label">AI-Powered Business Research</div>
+    <h1>Instant <span>Market Intelligence</span><br>for Any Industry</h1>
+    <p class="hero-sub">Enter a company, industry, or market — get a structured competitive analysis in seconds. Built by Leonardo Magana.</p>
+  </div>
+  <div class="input-section">
+    <label class="input-label">Research Query</label>
+    <div class="input-row">
+      <input type="text" id="queryInput" placeholder="e.g. Electric vehicle market in California" />
+      <button id="analyzeBtn" onclick="analyze()">Analyze →</button>
+    </div>
+    <div class="examples">
+      <span class="example-chip" onclick="setExample(this)">EV market in California</span>
+      <span class="example-chip" onclick="setExample(this)">Fintech industry 2025</span>
+      <span class="example-chip" onclick="setExample(this)">Cloud computing market</span>
+      <span class="example-chip" onclick="setExample(this)">Healthcare AI startups</span>
+      <span class="example-chip" onclick="setExample(this)">E-commerce retail trends</span>
+      <span class="example-chip" onclick="setExample(this)">Cybersecurity market</span>
+      <span class="example-chip" onclick="setExample(this)">Real estate tech</span>
+      <span class="example-chip" onclick="setExample(this)">Renewable energy sector</span>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Researching market intelligence...</div>
+  </div>
+  <div class="results" id="results">
+    <div class="results-header">
+      <div>
+        <div class="results-title">Market Analysis</div>
+        <div class="results-query" id="resultsQuery"></div>
+      </div>
+      <button class="reset-btn" onclick="reset()">← New Search</button>
+    </div>
+    <div class="sections-grid" id="sectionsGrid"></div>
+  </div>
+</main>
+<footer>
+  Built by <a href="https://github.com/Leo-Daniel-Magana" target="_blank">Leonardo Magana</a> · Market Research AI Assistant
+</footer>
+<script>
+  const GEMINI_KEY = 'AIzaSyDyydQUFFkq8Lq_L8y5VRPo1tBC-zuktV4';
+  function setExample(el) {
+    document.getElementById('queryInput').value = el.textContent;
+  }
+  function reset() {
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('queryInput').value = '';
+    document.getElementById('queryInput').focus();
+    document.querySelector('.input-section').style.display = 'block';
+  }
+  async function analyze() {
+    const query = document.getElementById('queryInput').value.trim();
+    if (!query) { showError('Please enter a market or industry to research.'); return; }
+    const btn = document.getElementById('analyzeBtn');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    const errorBox = document.getElementById('errorBox');
+    errorBox.classList.remove('active');
+    results.classList.remove('active');
+    loading.classList.add('active');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    const prompt = `Market analysis for: ${query}. Use EXACTLY these 6 headers:
+##OVERVIEW## 2 sentences on size/growth.
+##KEY PLAYERS## 4 bullet points.
+##TRENDS## 3 bullet points.
+##OPPORTUNITIES## 3 bullet points.
+##RISKS## 3 bullet points.
+##RECOMMENDATION## 2 sentences.`;
+    const sections = [
+      { key: 'OVERVIEW', icon: '🌐', title: 'Market Overview', highlight: false },
+      { key: 'KEY PLAYERS', icon: '🏢', title: 'Key Players', highlight: false },
+      { key: 'TRENDS', icon: '📈', title: 'Current Trends', highlight: false },
+      { key: 'OPPORTUNITIES', icon: '💡', title: 'Opportunities', highlight: false },
+      { key: 'RISKS', icon: '⚠️', title: 'Risks & Challenges', highlight: false },
+      { key: 'RECOMMENDATION', icon: '🎯', title: 'Strategic Recommendation', highlight: true },
+    ];
+    loading.classList.remove('active');
+    results.classList.add('active');
+    document.querySelector('.input-section').style.display = 'none';
+    document.getElementById('resultsQuery').textContent = `"${query}"`;
+    document.getElementById('sectionsGrid').innerHTML = sections.map(s => `
+      <div class="section-card ${s.highlight ? 'highlight' : ''}">
+        <span class="section-icon">${s.icon}</span>
+        <div class="section-title">${s.title}</div>
+        <div class="section-content" id="content-${s.key.replace(' ','-')}">Loading...</div>
+      </div>`).join('');
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 600 }
+          })
+        }
+      );
+      const data = await response.json();
+      const fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!fullText) throw new Error('No response');
+      updateSections(fullText, sections);
+    } catch (err) {
+      results.classList.remove('active');
+      document.querySelector('.input-section').style.display = 'block';
+      showError('Something went wrong. Please try again.');
+      console.error(err);
+    }
+    btn.disabled = false;
+    btn.textContent = 'Analyze →';
+  }
+  function updateSections(text, sections) {
+    sections.forEach((section, i) => {
+      const startMarker = `##${section.key}##`;
+      const nextSection = sections[i + 1];
+      const endMarker = nextSection ? `##${nextSection.key}##` : null;
+      const startIdx = text.indexOf(startMarker);
+      if (startIdx === -1) return;
+      const contentStart = startIdx + startMarker.length;
+      const endIdx = endMarker ? text.indexOf(endMarker, contentStart) : text.length;
+      const content = text.slice(contentStart, endIdx !== -1 ? endIdx : text.length).trim();
+      if (!content) return;
+      const el = document.getElementById(`content-${section.key.replace(' ', '-')}`);
+      if (!el) return;
+      const lines = content.split('\n').filter(l => l.trim());
+      const isList = lines.some(l => l.trim().startsWith('-') || l.trim().startsWith('•'));
+      let contentHtml = '';
+      if (isList) {
+        const items = lines.filter(l => l.trim().startsWith('-') || l.trim().startsWith('•')).map(l => l.replace(/^[-•]\s*/, '').trim());
+        contentHtml = `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+      } else {
+        contentHtml = `<p>${content}</p>`;
+      }
+      el.innerHTML = contentHtml;
+    });
+  }
+  function showError(msg) {
+    const errorBox = document.getElementById('errorBox');
+    errorBox.textContent = msg;
+    errorBox.classList.add('active');
+  }
+  document.getElementById('queryInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') analyze();
+  });
+</script>
+</body>
+</html>
