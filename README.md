@@ -7,10 +7,6 @@ An AI-powered market intelligence tool that generates structured competitive ana
 
 > **Note:** Live API integration currently in progress. Screenshots below show full functionality.
 
-## Screenshots
-
-*(Add screenshots here)*
-
 ## Features
 - Instant market analysis for any industry or company
 - Structured output: Market Overview, Key Players, Trends, Opportunities, Risks, and Strategic Recommendation
